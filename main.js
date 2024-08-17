@@ -1,5 +1,4 @@
 import InfiniteTable from "./InfinityTable/InfiniteTable.js";
-
 document.addEventListener("DOMContentLoaded", () => {
      const it = new InfiniteTable({
         table_id: 'test_table',
@@ -57,15 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 extent:(cell,id,isHeader,context)=>{
                     if(!isHeader)return
-                    const leftArrow = document.createElement('span');
-                    leftArrow.innerText='<'
-                    leftArrow.style.fontWeight='bolder';
-                    leftArrow.style.color='#ffffff'
-                    leftArrow.style.fontSize='18px'
-                    leftArrow.style.position='absolute';
-                    leftArrow.style.top='0px'
-                    leftArrow.style.left='0px'
-                    cell.appendChild(leftArrow)
+                    cell.style.display='flex';
+                    cell.style.flexDirection='row-reverse'
+                    cell.style.justifyContent='flex-end'
+                    const btn = document.createElement('button');
+                    btn.innerHTML='-';
+                    btn.style.width='20px'
+                    btn.style.height='38px'
+                    btn.style.cursor='pointer'
+                    btn.style.marginRight='10px'
+                    cell.appendChild(btn);
                 }
 
             },
@@ -79,4 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }).render();
     //console.log(it.toString())
+
+
+
 });
