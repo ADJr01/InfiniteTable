@@ -1,0 +1,55 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+*::after,
+*::before{
+  box-sizing: border-box;
+}
+
+body{
+  background-color: #20212d;
+}
+.color_white{
+  color: aliceblue;
+}
+.Infinity_Table{
+  width: 100%!important;
+  height: 100%!important;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  scroll-behavior: smooth;
+  overflow-x: auto;
+}
+.Infinity_Column{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.font_bolder{
+  font-weight: bolder;
+}
+
+.cell{
+  height: 32px;
+  width: 120px;
+  border: 1px solid #454652;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.cell:focus{
+  outline: none;
+}
+
+.Infinity_disable_selection{
+  user-select: none!important;
+}
+.Infinity_text_center{
+  text-align: center;
+  display: grid;
+  justify-content: center;
+}
