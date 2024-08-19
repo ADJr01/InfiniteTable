@@ -46,7 +46,7 @@ export default class InfiniteTable{
         const ids = helper.default.generateID(this.Column);
         this.InifinityTableElement = document.createElement('div');
         this.InifinityTableElement.classList.add('Infinity_Table');
-        let dataset = this.controller?.columnConfiguration?.cell?.data;
+        let dataset = this.controller?.columnConfiguration?.cell?.rowData;
         const titles = this.selfController.getColumnSetting('titles');
         if(!Array.isArray(titles)||titles.length<1)throw new Error("InfiniteTable Render Error.Titles must be an array");
         let titleT = 0;//on render phase title tracker
@@ -62,7 +62,7 @@ export default class InfiniteTable{
             this.columnManager.addColumn(column);
             this.InifinityTableElement.appendChild(column.getColumn());
         }
-        this.columnManager.setInitialDataToRows(dataset)
+        dataset && this.columnManager.setInitialDataToRows(dataset)
         this.InifinityTableElement.id=this.TableID;
         this.Container.appendChild(this.InifinityTableElement);
         return this;

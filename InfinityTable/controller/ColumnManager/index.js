@@ -9,28 +9,32 @@ export default class ColumnManager{
         this.idList=[]
         this.CURRENT_COLUMN_CHILD_LIST = this.config.Row;
         this.config.EventManager.subscribe(EventManager.EVENTS.addColumn,(e)=>{
-            const {position,targetID,title} = e.detail;
+            const {position,targetID,title,columnData} = e.detail;
             const atIndex = this.idList.indexOf(targetID);
             if(atIndex<0)throw new Error('ADD Column Failed');
             if(position==='right'){
-                this.addNewColumnToRight(atIndex,title)
+                this.addNewColumnToRight(atIndex,title,columnData)
             }else if(position==='left'){
-                this.addNewColumnToLeft(atIndex,title)
+                this.addNewColumnToLeft(atIndex,title,columnData)
             }
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
-           const {targetColumnID} = e.detail;
+           const {targetColumnID,mode} = e.detail;
            if(!targetColumnID)throw new Error('Invalid Delete Request');
             const columnIndex = this.ColumnList.findIndex(column => column.columnID === targetColumnID);
             const idIndex = this.idList.indexOf(targetColumnID);
             if(columnIndex<0 || idIndex<0)throw new Error("Invalid Delete Request");
-            this.ColumnList[columnIndex].getColumn().remove();
-            this.ColumnList.splice(columnIndex,1);//removing column from register
-            this.idList.splice(idIndex,1);//removing column specific id from register
-            //this.config.EventManager.raise(EventManager.EVENTS.RemovedColumnInTable,{detail: {targetColumnID}})
-            for (let i = columnIndex; i <this.ColumnList.length ; i++) {
-                this.ColumnList[i].columnIndex-=1;
-
+            if(mode!=='collapse'){
+                this.ColumnList[columnIndex].getColumn().remove();
+                this.ColumnList.splice(columnIndex,1);//removing column from register
+                this.idList.splice(idIndex,1);//removing column specific id from register
+                //this.config.EventManager.raise(EventManager.EVENTS.RemovedColumnInTable,{detail: {targetColumnID}})
+                for (let i = columnIndex; i <this.ColumnList.length ; i++) {
+                    this.ColumnList[i].columnIndex-=1;
+                }
+            }else{
+                const targetColumn = this.ColumnList[columnIndex];
+                targetColumn.setState('collapse')
             }
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.addRow,e=>{
@@ -101,7 +105,7 @@ export default class ColumnManager{
 
 
 
-    addNewColumnToRight(index,title){
+    addNewColumnToRight(index,title,columnData){
         if(index>=this.ColumnList.length || index<0)throw new Error('Invalid Column Index on Request to add Right');
         const {newColumn,newID} = this.processAppendRequest(this.ColumnList[index],title,'right')
         if(index===this.ColumnList.length-1){
@@ -113,7 +117,7 @@ export default class ColumnManager{
             this.ColumnList.splice(index+1,0,newColumn)
         }
         this.idList.splice(index+1,0,newID);
-        this.attachChildCells(newID,newColumn);
+        this.attachChildCells(newID,newColumn,columnData);
         this.config.setColumn(this.config.Column+1)
         this.config.EventManager.raise(EventManager.EVENTS.NewColumnInTable,{detail: {
                 position: 'right',
@@ -157,10 +161,11 @@ export default class ColumnManager{
         return {newColumn,newID};
     }
 
-    attachChildCells(newCellID,newColumn){
+    attachChildCells(newCellID,newColumn,columnData){
         for (let i =1; i <=this.CURRENT_COLUMN_CHILD_LIST ; i++) {
                 newColumn.addChild({
                     cellID: newCellID + `${i}`,
+                    innerText:Array.isArray(columnData) && columnData.length ? columnData.shift() : '',
                     cellSettings:this.config.getColumnSetting('cell:conf'),
                 })
         }

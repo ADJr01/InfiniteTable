@@ -10,8 +10,8 @@ export default function(context){
 
     }
 
-    function addColumn(position,targetID,title){
-        config.EventManager.raise(EventManager.EVENTS.addColumn,{detail: {position,targetID,title}})
+    function addColumn(position,targetID,title,columnData){
+        config.EventManager.raise(EventManager.EVENTS.addColumn,{detail: {position,targetID,title,columnData}})
     }
     function addRow(cellContext,cellDataSet){
         config.EventManager.raise(EventManager.EVENTS.addRow,{detail:{cellContext:cellContext,datasets:cellDataSet}})
@@ -20,8 +20,8 @@ export default function(context){
     function removeRow(){
     }
 
-    function removeColumn(targetColumnID){
-        config.EventManager.raise(EventManager.EVENTS.deleteColumn,{detail: {targetColumnID}})
+    function removeColumn(targetColumnID,mode='collapse'){
+        config.EventManager.raise(EventManager.EVENTS.deleteColumn,{detail: {targetColumnID,mode}})
     }
 
     return {expandColumn,collapseColumn,addColumn,addRow,removeColumn}

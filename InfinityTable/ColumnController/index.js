@@ -19,9 +19,16 @@ export default class ColumnController {
             }
             this.addChild(title)
         }
-        this.CollapseColumn = false;
+        this.isCollapsible = this.config.columnConfiguration.isCollapsible || false;
         this.ResizeAbility=false;
-        this.ExpandedColumn = true;
+    }
+
+    setState(state){
+        if(this.state==='collapse' && this.isCollapsible){
+                this.Column.style.display='none';
+        }else{
+            this.Column.style.display='fex';
+        }
     }
 
     get config(){

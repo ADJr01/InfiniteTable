@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     textAlign: 'center',
                     display: 'grid',
                     justifyContent: 'center',
+                    userSelect: 'none',
                     fontWeight: 'bolder'
                 },
                 event:{
@@ -50,24 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 },
                 attribs:{
-                    contenteditable:(cell,id,isHeader)=>{
-                        return !isHeader
-                    },
+                    contenteditable:false
                 },
                 extent:(cell,id,isHeader,context)=>{
-                    if(!isHeader)return
-                    cell.style.display='flex';
-                    cell.style.flexDirection='row-reverse'
-                    cell.style.justifyContent='flex-end'
-                    const btn = document.createElement('button');
-                    btn.innerHTML='-';
-                    btn.style.width='20px'
-                    btn.style.height='38px'
-                    btn.style.cursor='pointer'
-                    btn.style.marginRight='10px'
-                    cell.appendChild(btn);
+                        //onStartUp
                 },
-                data:{
+                rowData:{
                     1:["Income","Expense","Loan","Liability"],
                     2:[ 3590,    6288,9474, 85]
                 }
