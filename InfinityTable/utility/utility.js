@@ -36,12 +36,70 @@ function appendNewIDProcessor(to,targetID,generatedColumns=[]){
                 throw new Error('Infinite Table Column Generation Failed.')
             }
         }
+    }else if(to==='bottom'){
+        let nthCol = 1;
+        newID = targetID+`b${nthCol++}`;
+        while (generatedColumns.includes(newID)){
+            newID=targetID+`_${nthCol++}`;
+            if(nthCol>=10000){
+                throw new Error('Infinite Table Column Generation Failed.')
+            }
+        }
     }
-    generatedColumns.push(newID);
-    return {newID,generatedColumns}
+    return newID
+}
+
+function attachStyleEvents(element,styleObj,cellConf){
+    if(typeof styleObj !== 'object')return false;
+    return new Promise((done,failed)=>{
+        try{
+            for (const style in styleObj) {
+                if(typeof styleObj[style] === 'function'){
+                    try{
+                        element.style[style] = styleObj[style](cellConf.cell, cellConf.id, cellConf.header, cellConf.context);
+                    }catch (e) {
+                        console.error(`InfinityTable style calculation error: `,e);
+                    }
+                }else{
+                    element.style[style] = styleObj[style];
+                }
+            }
+            done(true);
+        }catch (e) {
+            console.error(e);
+            failed(e)
+        }
+    })
+}
+
+function extractNumberAndString(input) {
+    const match = input.match(/([a-zA-Z]+)(\d+)/);
+
+    if (match) {
+        return {
+            string: match[1],
+            number: parseInt(match[2], 10)
+        };
+    } else {
+        let string = '';
+        let number = '';
+        for (let i = 0; i < input.length; i++) {
+            if(!isNaN(input[i])){
+                number+=`${input[i]}`;
+            }else{
+                string+=`${input[i]}`;
+            }
+        }
+        return {
+            string,
+            number
+        };
+    }
 }
 
 export default {
     generateID: generateAlphabeticalIDs,
-    newColumnID: appendNewIDProcessor
+    newColumnID: appendNewIDProcessor,
+    attachStyleToCell:attachStyleEvents,
+    separateNumAndStr: extractNumberAndString
 }

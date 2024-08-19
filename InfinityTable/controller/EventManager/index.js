@@ -1,4 +1,8 @@
 const EventList = {
+    'addColumn':'addColumnRequest',
+    'deleteColumn':'deleteColumnRequest',
+    'addRow':'addRowRequest',
+    'deleteRow':'deleteRowRequest',
     'NewColumnInTable':'onNewColumn',
     'NewRowInTable':'onNewRow',
     'RemovedColumnInTable':'onRemoveColumn',

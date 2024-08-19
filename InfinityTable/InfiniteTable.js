@@ -22,9 +22,10 @@ export default class InfiniteTable{
         this.InifinityTableElement = null;
         this.columnManager = new ColumnManager(table_id);
         //handle Events:
-        this.selfController.EventManager.subscribe(EventManager.EVENTS.NewColumnInTable,(positon,afterIndex,newCol,addedColID)=>{
-            if(['right','left'].includes(positon)){
-                this.insertColumnToRightOrLeft(newCol,afterIndex,positon);
+        this.selfController.EventManager.subscribe(EventManager.EVENTS.NewColumnInTable,event=>{
+            const {position,afterIndex,addedColumn,addedColumnID} = event.detail;
+            if(['right','left'].includes(position)){
+                this.insertColumnToRightOrLeft(addedColumn,afterIndex,position);
             }
         })
     }
@@ -45,6 +46,7 @@ export default class InfiniteTable{
         const ids = helper.default.generateID(this.Column);
         this.InifinityTableElement = document.createElement('div');
         this.InifinityTableElement.classList.add('Infinity_Table');
+        let dataset = this.controller?.columnConfiguration?.cell?.data;
         const titles = this.selfController.getColumnSetting('titles');
         if(!Array.isArray(titles)||titles.length<1)throw new Error("InfiniteTable Render Error.Titles must be an array");
         let titleT = 0;//on render phase title tracker
@@ -60,6 +62,7 @@ export default class InfiniteTable{
             this.columnManager.addColumn(column);
             this.InifinityTableElement.appendChild(column.getColumn());
         }
+        this.columnManager.setInitialDataToRows(dataset)
         this.InifinityTableElement.id=this.TableID;
         this.Container.appendChild(this.InifinityTableElement);
         return this;
@@ -74,11 +77,14 @@ export default class InfiniteTable{
         if (n >= 0 && n < children.length) {
             // Insert the new element after the nth element
             const target = children[n];
-            pos==='right'?target.parentNode.insertBefore(newColumn, target.nextSibling):target.parentNode.insertBefore(newColumn, target);
+            pos==='right'?target.parentNode.insertBefore(newColumn.getColumn(), target.nextSibling):target.parentNode.insertBefore(newColumn.getColumn(), target);
         } else {
             console.error('The value of n is out of bounds.');
         }
     }
+
+
+
 
 
 }

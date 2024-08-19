@@ -1,39 +1,31 @@
-function attachStyleEvents(element,styleObj,cellConf){
-    if(typeof styleObj !== 'object')return false;
-    return new Promise((done,failed)=>{
-        try{
-            for (const style in styleObj) {
-                if(typeof styleObj[style] === 'function'){
-                    try{
-                        element.style[style] = styleObj[style](cellConf.cell, cellConf.id, cellConf.header, cellConf.context);
-                    }catch (e) {
-                        console.error(`InfinityTable style calculation error: `,e);
-                    }
-                }else{
-                    element.style[style] = styleObj[style];
-                }
-            }
-            done(true);
-        }catch (e) {
-            console.error(e);
-            failed(e)
-        }
-    })
-}
+import * as helper from '../utility/utility.js'
+import CellManager from "./CellManager.js";
 export default class Cell{
     constructor(cellConf) {
-        const {cellID,classNames,innerText,cellSettings,isHeader}= cellConf;
+        const {cellID,classNames,innerText,cellSettings,isHeader,columnID,settings}= cellConf;
         if(!cellID)throw new Error("cellID cannot be empty")
+        this.columnID = columnID;
         this.CellStyles = cellSettings.style;
         this.CellEvents = cellSettings.event;
         this.CellExtent = cellSettings.extent;
         this.isHeader = isHeader || false;
         this.cellID = cellID;
+        this.userData = {}
+        this.Settings = settings;
         this.classNames=classNames
         this.innerText = innerText || "";
         this.attribs=cellSettings.attribs;
         this.self = null;
     }
+
+    setUserData(userData){
+        this.userData = userData;
+    }
+
+    get getUserData(){
+        return this.userData;
+    }
+
 
     get CellElement(){
         if(this.self)return this.self;
@@ -44,8 +36,8 @@ export default class Cell{
         for (const attrib in this.attribs) {
             if(typeof this.attribs[attrib]==='function'){
                 try{
-                    const _attrib_caclulation = this.attribs[attrib](this.self,this.cellID,this.isHeader,this);
-                    this.self.setAttribute(attrib,_attrib_caclulation);
+                    const _ATTRIB_CALCULATION = this.attribs[attrib](this.self,this.cellID,this.isHeader,this);
+                    this.self.setAttribute(attrib,_ATTRIB_CALCULATION);
                 }catch (e) {
                     console.error(`InfiniteTable Attrib Calculation function error: `,e)
                 }
@@ -63,7 +55,7 @@ export default class Cell{
 
         ((context)=>{
             new Promise(async (done, failed) => {
-                await attachStyleEvents(context.self, context.CellStyles, {
+                await helper.default.attachStyleToCell(context.self, context.CellStyles, {
                     cell: context.self,
                     id: context.cellID,
                     header: context.isHeader,
@@ -71,7 +63,7 @@ export default class Cell{
                 });
                 if (typeof this.CellExtent === 'function') {
                     try {
-                        this.CellExtent(this.self, this.cellID, this.isHeader, this);
+                        this.CellExtent(this.self, this.cellID, this.isHeader, this,new CellManager(context));
                     } catch (e) {
                         console.error(`InfinityCellExtent Error: `, e);
                     }

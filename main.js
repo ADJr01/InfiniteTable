@@ -2,8 +2,8 @@ import InfiniteTable from "./InfinityTable/InfiniteTable.js";
 document.addEventListener("DOMContentLoaded", () => {
      const it = new InfiniteTable({
         table_id: 'test_table',
-        row: 10,
-        column: 10,
+        row: 4,
+        column: 2,
         root:'app',
         columnConf:{
             cell:{
@@ -66,6 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.style.cursor='pointer'
                     btn.style.marginRight='10px'
                     cell.appendChild(btn);
+                },
+                data:{
+                    1:["Income","Expense","Loan","Liability"],
+                    2:[ 3590,    6288,9474, 85]
                 }
 
             },

@@ -29,6 +29,8 @@ export default class ColumnController {
     }
 
     addChild(childConf){
+        childConf.columnID = this.columnID;
+        childConf.settings = this.config
         const newChild = new Cell(childConf)
         this.Column.appendChild(newChild.CellElement);
         this.ChildList.push(newChild);
