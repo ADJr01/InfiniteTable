@@ -19,19 +19,29 @@ export default class ColumnManager{
             }
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
-           const {targetColumnID,mode} = e.detail;
+           let {targetColumnID,mode,count,skipSelf} = e.detail;
+           if(skipSelf){
+             targetColumnID = this.getNextColumnId(targetColumnID);
+             console.log('targetColumnID: ',targetColumnID)
+             if(targetColumnID===-1)throw new Error('Delete Request Failed.ID not Found')
+             console.clear()
+           }
+           count = count || 1;
            if(!targetColumnID)throw new Error('Invalid Delete Request');
-            const columnIndex = this.ColumnList.findIndex(column => column.columnID === targetColumnID);
-            const idIndex = this.idList.indexOf(targetColumnID);
-            if(columnIndex<0 || idIndex<0)throw new Error("Invalid Delete Request");
             if(mode!=='collapse'){
+              for (let j = 0; j <count ; j++) {
+                const columnIndex = this.ColumnList.findIndex(column => column.columnID === targetColumnID);
+                const idIndex = this.idList.indexOf(targetColumnID);
+                if(columnIndex<0 || idIndex<0)throw new Error(`Invalid Delete Request to find next of ${targetColumnID}`);
+                targetColumnID = this.getNextColumnId(targetColumnID);
                 this.ColumnList[columnIndex].getColumn().remove();
                 this.ColumnList.splice(columnIndex,1);//removing column from register
                 this.idList.splice(idIndex,1);//removing column specific id from register
                 //this.config.EventManager.raise(EventManager.EVENTS.RemovedColumnInTable,{detail: {targetColumnID}})
                 for (let i = columnIndex; i <this.ColumnList.length ; i++) {
-                    this.ColumnList[i].columnIndex-=1;
+                  this.ColumnList[i].columnIndex-=1;
                 }
+              }
             }else{
                 const targetColumn = this.ColumnList[columnIndex];
                 targetColumn.setState('collapse')
@@ -41,6 +51,19 @@ export default class ColumnManager{
             const {cellContext,datasets} = e.detail;
             this.addRow(cellContext,datasets)
         })
+    }
+
+    getNextColumnId(colId){
+      let indexOfCurrentColumn = -1;
+      for (let i = 0; i < this.ColumnList.length; i++) {
+         if(this.ColumnList[i].columnID===colId){
+           indexOfCurrentColumn = i;
+         }
+         if(indexOfCurrentColumn>-1 && i>indexOfCurrentColumn){
+           return this.ColumnList[i].columnID;
+         }
+      }
+      return indexOfCurrentColumn;
     }
 
     setInitialDataToRows(dataset){

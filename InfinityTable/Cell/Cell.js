@@ -13,7 +13,7 @@ export default class Cell{
         this.userData = {}
         this.Settings = settings;
         this.classNames=classNames
-        this.innerText = innerText || "";
+        this.innerText = innerText
         this.attribs=cellSettings.attribs;
         this.self = null;
     }
@@ -48,7 +48,7 @@ export default class Cell{
         for (const event in this.CellEvents) {
             if(typeof this.CellEvents[event]==='function'){
                 this.self.addEventListener(event,()=>{
-                    this.CellEvents[event](this.self,this.cellID,this.isHeader,this)
+                    this.CellEvents[event](this.self,this.cellID,this.isHeader,this,new CellManager(this))
                 });
             }
         }

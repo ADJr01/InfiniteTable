@@ -20,9 +20,11 @@ export default function(context){
     function removeRow(){
     }
 
-    function removeColumn(targetColumnID,mode='collapse'){
-        config.EventManager.raise(EventManager.EVENTS.deleteColumn,{detail: {targetColumnID,mode}})
+    function removeColumn(targetColumnID,mode='collapse',count=1,skipSelf=false){
+        config.EventManager.raise(EventManager.EVENTS.deleteColumn,{detail: {targetColumnID,mode,count,skipSelf}})
     }
+
+
 
     return {expandColumn,collapseColumn,addColumn,addRow,removeColumn}
 }
