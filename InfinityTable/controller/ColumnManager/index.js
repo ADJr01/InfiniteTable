@@ -19,38 +19,46 @@ export default class ColumnManager{
             }
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
-           let {targetColumnID,mode,count,skipSelf} = e.detail;
-           if(skipSelf){
-             targetColumnID = this.getNextColumnId(targetColumnID);
-             console.log('targetColumnID: ',targetColumnID)
-             if(targetColumnID===-1)throw new Error('Delete Request Failed.ID not Found')
-             console.clear()
-           }
-           count = count || 1;
-           if(!targetColumnID)throw new Error('Invalid Delete Request');
-            if(mode!=='collapse'){
-              for (let j = 0; j <count ; j++) {
-                const columnIndex = this.ColumnList.findIndex(column => column.columnID === targetColumnID);
-                const idIndex = this.idList.indexOf(targetColumnID);
-                if(columnIndex<0 || idIndex<0)throw new Error(`Invalid Delete Request to find next of ${targetColumnID}`);
-                targetColumnID = this.getNextColumnId(targetColumnID);
-                this.ColumnList[columnIndex].getColumn().remove();
-                this.ColumnList.splice(columnIndex,1);//removing column from register
-                this.idList.splice(idIndex,1);//removing column specific id from register
-                //this.config.EventManager.raise(EventManager.EVENTS.RemovedColumnInTable,{detail: {targetColumnID}})
-                for (let i = columnIndex; i <this.ColumnList.length ; i++) {
-                  this.ColumnList[i].columnIndex-=1;
-                }
-              }
-            }else{
-                const targetColumn = this.ColumnList[columnIndex];
-                targetColumn.setState('collapse')
-            }
+           let {targetColumnID,mode,count,skipSelf,beforeRemove} = e.detail;
+           this.deleteColumn(targetColumnID,mode,count,skipSelf,beforeRemove)
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.addRow,e=>{
             const {cellContext,datasets} = e.detail;
             this.addRow(cellContext,datasets)
         })
+    }
+
+    deleteColumn(targetColumnID,mode,count=1,skipSelf=false,beforeRemove=null){
+        if(skipSelf){
+            targetColumnID = this.getNextColumnId(targetColumnID);
+            if(targetColumnID===-1)throw new Error('Delete Request Failed.ID not Found')
+        }
+        count = count || 1;
+        if(!targetColumnID)throw new Error('Invalid Delete Request');
+        if(mode!=='collapse'){
+            for (let j = 0; j <count ; j++) {
+                const columnIndex = this.ColumnList.findIndex(column => column.columnID === targetColumnID);
+                const idIndex = this.idList.indexOf(targetColumnID);
+                if(columnIndex<0 || idIndex<0)throw new Error(`Invalid Delete Request to find next of ${targetColumnID}`);
+                if(typeof beforeRemove==='function'){
+                    try {
+                        beforeRemove(this.ColumnList[columnIndex])
+                    }catch (e) {
+                        console.error(e)
+                    }
+                }
+                targetColumnID = this.getNextColumnId(targetColumnID);
+                this.ColumnList[columnIndex].getColumn().remove();
+                this.ColumnList.splice(columnIndex,1);//removing column from register
+                this.idList.splice(idIndex,1);//removing column specific id from register
+                for (let i = columnIndex; i <this.ColumnList.length ; i++) {
+                    this.ColumnList[i].columnIndex-=1;
+                }
+            }
+        }else{
+            const targetColumn = this.ColumnList[columnIndex];
+            targetColumn.setState('collapse')
+        }
     }
 
     getNextColumnId(colId){

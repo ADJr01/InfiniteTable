@@ -1,7 +1,7 @@
 import EventManager from "../controller/EventManager/index.js";
 
 export default function(context){
-    const config = context.Settings
+    const settings = context.Settings
     function expandColumn(){
 
     }
@@ -11,17 +11,17 @@ export default function(context){
     }
 
     function addColumn(position,targetID,title,columnData){
-        config.EventManager.raise(EventManager.EVENTS.addColumn,{detail: {position,targetID,title,columnData}})
+        settings.EventManager.raise(EventManager.EVENTS.addColumn,{detail: {position,targetID,title,columnData}})
     }
     function addRow(cellContext,cellDataSet){
-        config.EventManager.raise(EventManager.EVENTS.addRow,{detail:{cellContext:cellContext,datasets:cellDataSet}})
+        settings.EventManager.raise(EventManager.EVENTS.addRow,{detail:{cellContext:cellContext,datasets:cellDataSet}})
     }
 
     function removeRow(){
     }
 
-    function removeColumn(targetColumnID,mode='collapse',count=1,skipSelf=false){
-        config.EventManager.raise(EventManager.EVENTS.deleteColumn,{detail: {targetColumnID,mode,count,skipSelf}})
+    function removeColumn(targetColumnID,mode='collapse',count=1,skipSelf=false,beforeRemove){
+        settings.EventManager.raise(EventManager.EVENTS.deleteColumn,{detail: {targetColumnID,mode,count,skipSelf,beforeRemove}})
     }
 
 
