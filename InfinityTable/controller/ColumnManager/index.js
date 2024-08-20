@@ -20,7 +20,7 @@ export default class ColumnManager{
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
            let {targetColumnID,mode,count,skipSelf,beforeRemove} = e.detail;
-           this.deleteColumn(targetColumnID,mode,count,skipSelf,beforeRemove)
+           this.deleteColumn(targetColumnID,mode,count,skipSelf,beforeRemove);
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.addRow,e=>{
             const {cellContext,datasets} = e.detail;
@@ -146,8 +146,8 @@ export default class ColumnManager{
                 this.ColumnList[i].columnIndex +=1;
             }
             this.ColumnList.splice(index+1,0,newColumn)
+            this.idList.splice(index+1,0,newID);
         }
-        this.idList.splice(index+1,0,newID);
         this.attachChildCells(newID,newColumn,columnData);
         this.config.setColumn(this.config.Column+1)
         this.config.EventManager.raise(EventManager.EVENTS.NewColumnInTable,{detail: {

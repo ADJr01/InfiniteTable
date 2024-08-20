@@ -6,9 +6,9 @@ function getRandomNumber(min, max) {
 const recursiveDelete = (column,cellManager)=>{
     const firstChildContext = column.ChildList[0];
     if(firstChildContext.getUserData && firstChildContext.getUserData['isExpanded'] && firstChildContext.getUserData['totalColumns']>0){
-        cellManager.removeColumn(firstChildContext.columnID,'delete',firstChildContext.getUserData['totalColumns'],true,column=>{
-            recursiveDelete(column,cellManager)
-        })
+        cellManager.removeColumn(firstChildContext.columnID,'delete',firstChildContext.getUserData['totalColumns'],true,column=>{recursiveDelete(column,cellManager)})
+        firstChildContext.setUserData({...firstChildContext.getUserData,isExpanded:false,totalColumns:0});
+
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -50,12 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         cell.style.outline=''
                     },
                     click: (cell,id,isHeader,context,cellManager)=>{
+                        console.log(context.getUserData , context.getUserData['isExpanded'] , context.getUserData["totalColumns"]>0)
                         if(context.getUserData && context.getUserData['isExpanded'] && context.getUserData["totalColumns"]>0){
                             const totalColumns = context.getUserData['totalColumns'];
                             cellManager.removeColumn(context.columnID,'delete',totalColumns,true,column=>{
                                 recursiveDelete(column,cellManager)
                             })
-                            context.setUserData({...context.getUserData,isExpanded:false,totalColumns:0,})
+                            let userData = context.getUserData
+                            userData = {...userData, totalColumns:0,isExpanded:false};
+                            context.setUserData(userData)
                             return;
                         }
                         const cellText = cell.innerText;
@@ -64,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 cellManager.addColumn('right',context.columnID,'Q3',[getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000)])
                                 cellManager.addColumn('right',context.columnID,'Q2',[getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000)])
                                 cellManager.addColumn('right',context.columnID,'Q1',[getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000)])
-                                context.setUserData({isExpanded:true,totalColumns:3,...context.getUserData})
+                                context.setUserData({...context.getUserData,isExpanded:true,totalColumns:3})
                             }else if(cell.innerText.includes('Q')){
                                 if(cellText === 'Q1'){
                                     for (let i = 3; i >=0; i--) {
@@ -75,12 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
                                     for (let i = 7; i >=4; i--) {
                                         cellManager.addColumn('right',context.columnID,MONTHS[i],[getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000)])
                                     }
-                                    context.setUserData({isExpanded:true,totalColumns:4,...context.getUserData})
+                                    context.setUserData({...context.getUserData,isExpanded:true,totalColumns:4})
                                 }else if(cellText === 'Q3'){
                                     for (let i =11; i >=8; i--) {
                                         cellManager.addColumn('right',context.columnID,MONTHS[i],[getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000)])
                                     }
-                                    context.setUserData({isExpanded:true,totalColumns:4,...context.getUserData})
+                                    context.setUserData({...context.getUserData,isExpanded:true,totalColumns:4})
                                 }
                             }else if(MONTHS.indexOf(cellText)>-1){
                                 for (let i = 30; i >0 ; i--) {
@@ -88,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                         cellManager.addColumn('right',context.columnID,i,[getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000),getRandomNumber(100,2000)])
                                     },50)
                                 }
-                                context.setUserData({isExpanded:true,totalColumns:30,...context.getUserData})
+                                context.setUserData({...context.getUserData,isExpanded:true,totalColumns:30})
                             }
                         }
 
