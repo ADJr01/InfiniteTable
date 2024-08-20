@@ -1,5 +1,6 @@
 const EventList = {
     'addColumn':'addColumnRequest',
+    'addLayerColumn':'addLayerColumnRequest',
     'deleteColumn':'deleteColumnRequest',
     'addRow':'addRowRequest',
     'deleteRow':'deleteRowRequest',

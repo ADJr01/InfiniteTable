@@ -20,14 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         columnConf:{
             cell:{
                 style:{
-                    width: (cell,id)=>{
-                        if(id.includes('A')){
-                            return '300px'
-                        }else if(id.includes('B')){
-                            return '250px'
-                        }
-                        return '100px'
-                    },
+                    width: '250px',
                     position: 'relative',
                     height: '40px',
                     color:'#ffffff',
@@ -50,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         cell.style.outline=''
                     },
                     click: (cell,id,isHeader,context,cellManager)=>{
-                        console.log(context.getUserData , context.getUserData['isExpanded'] , context.getUserData["totalColumns"]>0)
                         if(context.getUserData && context.getUserData['isExpanded'] && context.getUserData["totalColumns"]>0){
                             const totalColumns = context.getUserData['totalColumns'];
                             cellManager.removeColumn(context.columnID,'delete',totalColumns,true,column=>{

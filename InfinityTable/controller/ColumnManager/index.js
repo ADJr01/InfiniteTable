@@ -18,6 +18,7 @@ export default class ColumnManager{
                 this.addNewColumnToLeft(atIndex,title,columnData)
             }
         });
+        this.config.EventManager.subscribe(EventManager.EVENTS.addLayerColumn,e=>this.addLayerColumns(e.detail))
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
            let {targetColumnID,mode,count,skipSelf,beforeRemove} = e.detail;
            this.deleteColumn(targetColumnID,mode,count,skipSelf,beforeRemove);
@@ -26,6 +27,10 @@ export default class ColumnManager{
             const {cellContext,datasets} = e.detail;
             this.addRow(cellContext,datasets)
         })
+    }
+
+    addLayerColumns(layerConf){
+
     }
 
     deleteColumn(targetColumnID,mode,count=1,skipSelf=false,beforeRemove=null){
