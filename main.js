@@ -85,7 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
                                 }
                                 context.setUserData({...context.getUserData,isExpanded:true,totalColumns:30})
                             }
+
+                            return;
                         }
+
+
 
                     },
                     mouseover:(cell,id,isHeader)=>{

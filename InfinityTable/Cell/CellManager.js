@@ -16,7 +16,8 @@ export default function(context){
         settings.EventManager.raise(EventManager.EVENTS.addRow,{detail:{cellContext:cellContext,datasets:cellDataSet}})
     }
 
-    function removeRow(){
+    function removeRow(cellContext,ColumnID,totalDelete=1,skipSelf=false,recursiveRowDelete=null){
+        settings.EventManager.raise(EventManager.EVENTS.deleteRow,{detail: {cellContext,ColumnID,totalDelete,skipSelf,recursiveRowDelete}})
     }
 
     function removeColumn(targetColumnID,mode='collapse',count=1,skipSelf=false,beforeRemove){

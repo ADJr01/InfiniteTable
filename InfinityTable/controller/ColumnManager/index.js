@@ -26,8 +26,37 @@ export default class ColumnManager{
         this.config.EventManager.subscribe(EventManager.EVENTS.addRow,e=>{
             const {cellContext,datasets} = e.detail;
             this.addRow(cellContext,datasets)
-        })
+        });
+        this.config.EventManager.subscribe(EventManager.EVENTS.deleteRow,e=>{
+        const {cellContext,ColumnID,totalDelete,skipSelf,recursiveRowDelete} = e.detail;
+        const targetColumn = this.ColumnList[this.ColumnList.findIndex(column=>column.columnID===ColumnID)];
+        if(!targetColumn)throw new Error('Row Remove Request Failed');
+        let fromRow = targetColumn.ChildList.findIndex(cell=>cell.cellID===cellContext.cellID);
+        const UPDATE_FROM = !skipSelf?fromRow:fromRow+1;
+        if(skipSelf) fromRow++;
+        for (let i = 0; i < this.ColumnList.length; i++) {
+          const newChildrenList = this.removeCellItem(this.ColumnList[i].ChildList,fromRow,totalDelete,recursiveRowDelete);
+          newChildrenList && newChildrenList.length && (this.ColumnList[i].ChildList=newChildrenList);
+          !newChildrenList  && console.error('Empty Column Detected');
+          i===0 && (this.CURRENT_COLUMN_CHILD_LIST = newChildrenList.length)
+          if(this.CURRENT_COLUMN_CHILD_LIST!==newChildrenList.length && i>0){
+            this.CURRENT_COLUMN_CHILD_LIST=newChildrenList.length;
+          }
+        }
+      })
     }
+
+    removeCellItem(cellList,atIndex,count=1,recursiveCallback){
+    let iterate_count = 0;
+    while(iterate_count<count) {
+      if(!cellList[atIndex] || !cellList[atIndex].CellElement)return cellList
+      if(typeof recursiveCallback === 'function')try {recursiveCallback(cellList[atIndex])}catch(e){console.error(e);}
+      cellList[atIndex].CellElement.remove();
+      cellList.splice(atIndex,1);
+      iterate_count++;
+    }
+    return cellList;
+  }
 
     addLayerColumns(layerConf){
 
@@ -138,6 +167,8 @@ export default class ColumnManager{
         targetCell.CellElement.insertAdjacentElement('afterend',newCell.CellElement)
 
     }
+
+
 
 
 

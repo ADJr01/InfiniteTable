@@ -97,7 +97,15 @@ function extractNumberAndString(input) {
     }
 }
 
+const getNextCEllID = (columndID,previousID=null)=>{
+            if(!previousID)return `${columndID}1`;
+            const numeric_part = previousID.replace(columndID,'');
+            if(isNaN(numeric_part))throw new Error('Invalid ID pattern detected');
+            return `${columndID}${Number(numeric_part)+1}`;
+}
+
 export default {
+    getNextCEllID,
     generateID: generateAlphabeticalIDs,
     newColumnID: appendNewIDProcessor,
     attachStyleToCell:attachStyleEvents,
