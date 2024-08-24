@@ -100,7 +100,7 @@ function extractNumberAndString(input) {
 const getNextCEllID = (columndID,previousID=null)=>{
             if(!previousID)return `${columndID}1`;
             const numeric_part = previousID.replace(columndID,'');
-            if(isNaN(numeric_part))throw new Error('Invalid ID pattern detected');
+            if(isNaN(numeric_part))throw new Error(`Invalid ID pattern detected when extracting on previousCellID: ${previousID} and columndID: ${columndID}`);
             return `${columndID}${Number(numeric_part)+1}`;
 }
 

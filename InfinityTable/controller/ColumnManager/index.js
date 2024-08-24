@@ -35,18 +35,19 @@ export default class ColumnManager{
         const UPDATE_FROM = !skipSelf?fromRow:fromRow+1;
         if(skipSelf) fromRow++;
         for (let i = 0; i < this.ColumnList.length; i++) {
-          const newChildrenList = this.removeCellItem(this.ColumnList[i].ChildList,fromRow,totalDelete,recursiveRowDelete);
+          const currentColID = this.ColumnList[i].columnID;
+          const newChildrenList = this.removeCellItem(this.ColumnList[i].ChildList,fromRow,totalDelete,currentColID,UPDATE_FROM,recursiveRowDelete);
           newChildrenList && newChildrenList.length && (this.ColumnList[i].ChildList=newChildrenList);
           !newChildrenList  && console.error('Empty Column Detected');
-          i===0 && (this.CURRENT_COLUMN_CHILD_LIST = newChildrenList.length)
-          if(this.CURRENT_COLUMN_CHILD_LIST!==newChildrenList.length && i>0){
+          if(this.CURRENT_COLUMN_CHILD_LIST!==newChildrenList.length ){
             this.CURRENT_COLUMN_CHILD_LIST=newChildrenList.length;
           }
         }
+
       })
     }
 
-    removeCellItem(cellList,atIndex,count=1,recursiveCallback){
+    removeCellItem(cellList,atIndex,count=1,columnID,startFrom,recursiveCallback=null,){
     let iterate_count = 0;
     while(iterate_count<count) {
       if(!cellList[atIndex] || !cellList[atIndex].CellElement)return cellList
@@ -54,6 +55,12 @@ export default class ColumnManager{
       cellList[atIndex].CellElement.remove();
       cellList.splice(atIndex,1);
       iterate_count++;
+    }
+    while(cellList[startFrom]){
+      const getNextID = helper.default.getNextCEllID(columnID,cellList[startFrom-1]?cellList[startFrom-1].cellID:null)
+      cellList[startFrom].cellID=getNextID;
+      cellList[startFrom].self.id=getNextID;
+      startFrom++;
     }
     return cellList;
   }
@@ -133,27 +140,22 @@ export default class ColumnManager{
 
     addRow(cell,dataset){
         let dataRow = Array.isArray(dataset) && dataset.length===this.ColumnList.length?dataset:null;
+        const targetColumn = this.ColumnList.find(column => column.columnID === column.columnID);
         const targetID = cell.cellID;
-        const seperateID = helper.default.separateNumAndStr(targetID);
-        const afterIndex = seperateID.number;
+        const afterIndex = targetColumn.ChildList.findIndex(cell => cell.cellID === targetID);
         for (let i = 0; i < this.ColumnList.length; i++) {
-            const newCellData = dataRow?dataRow[i]:null;
-            this.attachNewCell(this.ColumnList[i].ChildList,afterIndex,this.ColumnList[i].ChildList[afterIndex],newCellData);
+            const newCellData = dataRow?dataRow[i]:'';
+           this.attachNewCell(this.ColumnList[i].ChildList,afterIndex,this.ColumnList[i].ChildList[afterIndex],newCellData);
+
         }
         this.CURRENT_COLUMN_CHILD_LIST+=1;
     }
 
+
+    //IN ROW CELL ATTACHMENT
     attachNewCell(cellList,afterIndex,targetCell,textDataForCell=''){
-        const currentCellIDSep = helper.default.separateNumAndStr(targetCell.cellID);
-        const newCellID = `${currentCellIDSep.string}${afterIndex+1}`
-        //updating current cell id
-        for (let i = afterIndex+1; i <cellList.length ; i++) {
-            const currentColumnID = cellList[i].cellID;
-            const seperated = helper.default.separateNumAndStr(currentColumnID);
-            cellList[i].cellID=`${seperated.string}${seperated.number+1}`;
-            cellList[i].self.id = cellList[i].cellID;
-        }
-        //end updating current cell id
+        const colID = cellList[afterIndex].columnID;
+        const newCellID = helper.default.getNextCEllID(colID,cellList[afterIndex]?.cellID || '')
         const newCell = new Cell({
             cellID: newCellID,
             classNames:targetCell.classNames,
@@ -165,6 +167,15 @@ export default class ColumnManager{
         });
         cellList.splice(afterIndex+1,0,newCell)
         targetCell.CellElement.insertAdjacentElement('afterend',newCell.CellElement)
+
+      //updating remaining cell id
+      for (let i = afterIndex+1; i <cellList.length ; i++) {
+        const prevColumnID = cellList[i-1].cellID;
+        // const seperated = helper.default.separateNumAndStr(currentColumnID);
+        cellList[i].cellID=helper.default.getNextCEllID(colID,prevColumnID) //`${seperated.string}${seperated.number+1}`;
+        cellList[i].self.id = cellList[i].cellID;
+      }
+      //end updating current cell id
 
     }
 
@@ -229,7 +240,7 @@ export default class ColumnManager{
     }
 
     attachChildCells(newCellID,newColumn,columnData){
-        for (let i =1; i <=this.CURRENT_COLUMN_CHILD_LIST ; i++) {
+        for (let i =1; i <=this.CURRENT_COLUMN_CHILD_LIST ; i++) { // REQUIRES INDEPTH R&D
                 newColumn.addChild({
                     cellID: newCellID + `${i}`,
                     innerText:Array.isArray(columnData) && columnData.length ? columnData.shift() : '',
@@ -238,3 +249,4 @@ export default class ColumnManager{
         }
     }
 }
+
