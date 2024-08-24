@@ -76,6 +76,7 @@ class PopulationRecord{
         this.ContinetalData = {};
         this.StartYear = startYear;
         this.EndYear = endYear;
+        this.YEARLY_TOTAL_OF_CONTINENTS = {}
         waitForCacheToBeReady(cacheWorker).then(resolve=>{
             cacheWorker.postMessage( {key:'countryList'})
             this.totalEventFired+=1;
@@ -112,15 +113,19 @@ class PopulationRecord{
                         const {country,year} = keyWiseValue(key)
                         for (let i = 0; i < this.CONTINENT_LIST.length; i++) {
                             const continent = this.CONTINENT_LIST[i];
+                            let continentTotal = 0;
                             if(this.CONTINENTS_WITH_COUNTRIES[continent].includes(country)){
                                 const dataOfTheYear = {}
                                 dataOfTheYear.total = data.reduce((accumulator, current) => accumulator + current.total, 0);
                                 dataOfTheYear.year=year;
                                 dataOfTheYear.data = data;
                                 this.ContinetalData[continent][country][year]=dataOfTheYear;
+                                continentTotal+=Number(dataOfTheYear.total);
+                                this.setYearlyTotal(continent,year,continentTotal);
                                 break;
                             }
                         }
+
                         if(this.totalEventFired===0){
                             postMessage({status: true,type:'complete', recordClass: populationRecord});
                         }
@@ -131,8 +136,11 @@ class PopulationRecord{
                 }
             }
         })
+    }
 
-
+    setYearlyTotal(continentName,year,total){
+         if(!this.YEARLY_TOTAL_OF_CONTINENTS[continentName])this.YEARLY_TOTAL_OF_CONTINENTS[continentName]={}
+        this.YEARLY_TOTAL_OF_CONTINENTS[continentName][year]=total;
     }
 
     get CONTINENTS(){
