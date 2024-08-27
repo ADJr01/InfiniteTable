@@ -96,28 +96,7 @@ export default class InfiniteTable{
         dataset && this.columnManager.setInitialDataToRows(dataset)
         this.InifinityTableElement.id=this.TableID;
         this.Container.appendChild(this.InifinityTableElement);
-        // new MutationListener(this.InifinityTableElement,(_,mutationList) => {
-        //     const context = this;
-        //     context.mutation_Listener_Callback = requestAnimationFrame(_=>{
-        //         mutationList.forEach((mutation) => {
-        //             // Check if the mutation is for attributes or child list changes
-        //             if (mutation.type === 'childList') {
-        //                 const cellList = Array.from(this.columnManager.ColumnList[0].getColumn().children); // Adjust as per actual selection
-        //                 // Loop through each cell in the first column
-        //                 for (let cellIndex = 0; cellIndex < cellList.length; cellIndex++) {
-        //                     const cellHeight = cellList[cellIndex].getBoundingClientRect().height; // Get the height of each cell
-        //                     // Loop through other columns and set their heights
-        //                     for (let columnIndex = 0; columnIndex < context.columnManager.ColumnList.length; columnIndex++) {
-        //                         const nextColumn = Array.from(context.columnManager.ColumnList[columnIndex].getColumn().children);
-        //                         if (nextColumn[cellIndex]) {
-        //                             nextColumn[cellIndex].style.height = `${cellHeight}px`;
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         });
-        //     })
-        // })
+
         this.selfController.EventManager.raise(EventManager.EVENTS.RenderingComplete)
         return this;
     }

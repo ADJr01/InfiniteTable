@@ -8,6 +8,7 @@ const EventList = {
     'NewRowInTable':'onNewRow',
     'RemovedColumnInTable':'onRemoveColumn',
     'RemovedRowInTable':'onRemovedRow',
+    'InitiateDataRendering':'onDataRenderingInit',
     'RenderingComplete':'onRenderingComplete',
 }
 export default class EventManager extends EventTarget{

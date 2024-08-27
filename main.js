@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     overflowX: 'auto',
                     overflowY: 'hidden',
                     textAlign: 'center',
+                    padding:'8px',
                     display: 'grid',
                     justifyContent: 'center',
                     userSelect: 'none',
