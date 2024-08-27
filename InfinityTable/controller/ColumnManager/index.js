@@ -2,6 +2,7 @@ import * as helper from '../../utility/utility.js'
 import ColumnController from "../../ColumnController/index.js";
 import EventManager from "../EventManager/index.js";
 import Cell from "../../Cell/Cell.js";
+
 export default class ColumnManager{
     constructor(fromTable=null){
         this.tableID =fromTable;
@@ -17,7 +18,10 @@ export default class ColumnManager{
             }else if(position==='left'){
                 this.addNewColumnToLeft(atIndex,title,columnData)
             }
+            this.config.EventManager.raise(EventManager.EVENTS.RenderingComplete)
         });
+
+
         this.config.EventManager.subscribe(EventManager.EVENTS.addLayerColumn,e=>this.addLayerColumns(e.detail))
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
            let {targetColumnID,mode,count,skipSelf,beforeRemove} = e.detail;
@@ -26,6 +30,7 @@ export default class ColumnManager{
         this.config.EventManager.subscribe(EventManager.EVENTS.addRow,e=>{
             const {cellContext,datasets} = e.detail;
             this.addRow(cellContext,datasets)
+            this.config.EventManager.raise(EventManager.EVENTS.RenderingComplete)
         });
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteRow,e=>{
         const {cellContext,ColumnID,totalDelete,skipSelf,recursiveRowDelete} = e.detail;
@@ -39,12 +44,19 @@ export default class ColumnManager{
           const newChildrenList = this.removeCellItem(this.ColumnList[i].ChildList,fromRow,totalDelete,currentColID,UPDATE_FROM,recursiveRowDelete);
           newChildrenList && newChildrenList.length && (this.ColumnList[i].ChildList=newChildrenList);
           !newChildrenList  && console.error('Empty Column Detected');
-          if(this.CURRENT_COLUMN_CHILD_LIST!==newChildrenList.length ){
-            this.CURRENT_COLUMN_CHILD_LIST=newChildrenList.length;
+          if(this.CURRENT_COLUMN_CHILD_LIST!==newChildrenList.length-1){
+            this.CURRENT_COLUMN_CHILD_LIST=newChildrenList.length-1;
           }
         }
 
       })
+    }
+
+
+    addColumn(column){
+        this.ColumnList.push(column)
+        this.idList.push(column.columnID)
+        return true
     }
 
     removeCellItem(cellList,atIndex,count=1,columnID,startFrom,recursiveCallback=null,){
@@ -121,9 +133,9 @@ export default class ColumnManager{
             const childrens = this.ColumnList[i].ChildList;
             const datas_for_stick = dataset[row_data_stick++];
             for (let j = 1; j <childrens.length ; j++) {
-                const data_for_cell = datas_for_stick[j-1];
-                if(!data_for_cell)continue
-                childrens[j].self.innerText=data_for_cell;
+              childrens[j].self.innerText=datas_for_stick[j - 1] || " ";
+
+
             }
         }
     }
@@ -132,11 +144,7 @@ export default class ColumnManager{
         return window.infiniteTable[this.tableID]
     }
 
-    addColumn(column){
-        this.ColumnList.push(column)
-        this.idList.push(column.columnID)
-        return true
-    }
+
 
     addRow(cell,dataset){
         let dataRow = Array.isArray(dataset) && dataset.length===this.ColumnList.length?dataset:null;
@@ -240,7 +248,8 @@ export default class ColumnManager{
     }
 
     attachChildCells(newCellID,newColumn,columnData){
-        for (let i =1; i <=this.CURRENT_COLUMN_CHILD_LIST ; i++) { // REQUIRES INDEPTH R&D
+        const current_len = newColumn.ChildList.length
+        for (let i =current_len; i <=this.CURRENT_COLUMN_CHILD_LIST ; i++) { // REQUIRES INDEPTH R&D
                 newColumn.addChild({
                     cellID: newCellID + `${i}`,
                     innerText:Array.isArray(columnData) && columnData.length ? columnData.shift() : '',

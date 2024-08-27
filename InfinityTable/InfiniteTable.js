@@ -5,6 +5,7 @@ import Controller from "./controller/Controller.js";
 import ColumnController from "./ColumnController/index.js";
 import ColumnManager from "./controller/ColumnManager/index.js";
 import EventManager from "./controller/EventManager/index.js";
+import MutationListener from "./controller/ColumnManager/MutationListener";
 
 export default class InfiniteTable{
     constructor(tableConf={}){
@@ -16,6 +17,7 @@ export default class InfiniteTable{
         this.controller.setColumn(column)
         this.TableID = table_id;
         this.Container = document.getElementById(root);
+        this.mutation_Listener_Callback = null;
         this.Row = typeof row === 'number' && row >= 0 ? row : 1
         this.Column = typeof column === 'number' && column >= 0 ? column : 1
         if(!this.Container)throw new Error("Could not find Container");
@@ -28,6 +30,35 @@ export default class InfiniteTable{
                 this.insertColumnToRightOrLeft(addedColumn,afterIndex,position);
             }
         })
+        this.selfController.EventManager.subscribe(EventManager.EVENTS.RenderingComplete,_=>{
+            const context = this;
+            if(context.mutation_Listener_Callback){
+                cancelAnimationFrame(context.mutation_Listener_Callback);
+                context.mutation_Listener_Callback=null;
+            }
+            context.mutation_Listener_Callback = requestAnimationFrame(_=>{
+                const cellList = Array.from(this.columnManager.ColumnList[0].getColumn().children); // Adjust as per actual selection
+                // Loop through each cell in the first column
+                for (let cellIndex = 0; cellIndex < cellList.length; cellIndex++) {
+                    const cellHeight = cellList[cellIndex].getBoundingClientRect().height; // Get the height of each cell
+                    // Loop through other columns and set their heights
+                    for (let columnIndex = 0; columnIndex < context.columnManager.ColumnList.length; columnIndex++) {
+                        const nextColumn = Array.from(context.columnManager.ColumnList[columnIndex].getColumn().children);
+                        if (nextColumn[cellIndex]) {
+                            nextColumn[cellIndex].style.height = `${cellHeight}px`;
+                        }
+                    }
+                }
+
+            })
+        })
+    }
+
+    get COLUMN_CHILD_COUNT(){
+      return this.columnManager.CURRENT_COLUMN_CHILD_LIST;
+    }
+    get COLUMN_COUNT(){
+      return this.columnManager.ColumnList.length
     }
 
     get selfController(){
@@ -65,6 +96,29 @@ export default class InfiniteTable{
         dataset && this.columnManager.setInitialDataToRows(dataset)
         this.InifinityTableElement.id=this.TableID;
         this.Container.appendChild(this.InifinityTableElement);
+        // new MutationListener(this.InifinityTableElement,(_,mutationList) => {
+        //     const context = this;
+        //     context.mutation_Listener_Callback = requestAnimationFrame(_=>{
+        //         mutationList.forEach((mutation) => {
+        //             // Check if the mutation is for attributes or child list changes
+        //             if (mutation.type === 'childList') {
+        //                 const cellList = Array.from(this.columnManager.ColumnList[0].getColumn().children); // Adjust as per actual selection
+        //                 // Loop through each cell in the first column
+        //                 for (let cellIndex = 0; cellIndex < cellList.length; cellIndex++) {
+        //                     const cellHeight = cellList[cellIndex].getBoundingClientRect().height; // Get the height of each cell
+        //                     // Loop through other columns and set their heights
+        //                     for (let columnIndex = 0; columnIndex < context.columnManager.ColumnList.length; columnIndex++) {
+        //                         const nextColumn = Array.from(context.columnManager.ColumnList[columnIndex].getColumn().children);
+        //                         if (nextColumn[cellIndex]) {
+        //                             nextColumn[cellIndex].style.height = `${cellHeight}px`;
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         });
+        //     })
+        // })
+        this.selfController.EventManager.raise(EventManager.EVENTS.RenderingComplete)
         return this;
     }
 
@@ -81,6 +135,7 @@ export default class InfiniteTable{
         } else {
             console.error('The value of n is out of bounds.');
         }
+        this.selfController.EventManager.raise(EventManager.EVENTS.RenderingComplete)
     }
 
 

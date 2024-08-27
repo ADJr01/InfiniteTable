@@ -47,8 +47,8 @@ export default class Cell{
         }
         for (const event in this.CellEvents) {
             if(typeof this.CellEvents[event]==='function'){
-                this.self.addEventListener(event,()=>{
-                    this.CellEvents[event](this.self,this.cellID,this.isHeader,this,new CellManager(this))
+                this.self.addEventListener(event,(firedEvent)=>{
+                    this.CellEvents[event](this.self,this.cellID,this.isHeader,this,new CellManager(this),firedEvent)
                 });
             }
         }

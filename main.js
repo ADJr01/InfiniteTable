@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 style:{
                     width: '250px',
                     position: 'relative',
-                    height: '40px',
                     color:'#ffffff',
                     background:'#011a1a',
                     border: `1px solid #454652`,
