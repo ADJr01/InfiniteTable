@@ -127,18 +127,6 @@ export default class ColumnManager{
       return indexOfCurrentColumn;
     }
 
-    setInitialDataToRows(dataset){
-        let row_data_stick = 1;
-        for (let i = 0; i < this.ColumnList.length; i++) {
-            const childrens = this.ColumnList[i].ChildList;
-            const datas_for_stick = dataset[row_data_stick++];
-            for (let j = 1; j <childrens.length ; j++) {
-              childrens[j].self.innerText=datas_for_stick[j - 1] || " ";
-
-
-            }
-        }
-    }
 
     get config(){
         return window.infiniteTable[this.tableID]
@@ -158,8 +146,6 @@ export default class ColumnManager{
         }
         this.CURRENT_COLUMN_CHILD_LIST+=1;
     }
-
-
     //IN ROW CELL ATTACHMENT
     attachNewCell(cellList,afterIndex,targetCell,textDataForCell=''){
         const colID = cellList[afterIndex].columnID;
@@ -186,10 +172,6 @@ export default class ColumnManager{
       //end updating current cell id
 
     }
-
-
-
-
 
     addNewColumnToRight(index,title,columnData){
         if(index>=this.ColumnList.length || index<0)throw new Error('Invalid Column Index on Request to add Right');

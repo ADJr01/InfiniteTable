@@ -37,7 +37,7 @@ export default class Cell{
             if(typeof this.attribs[attrib]==='function'){
                 try{
                     const _ATTRIB_CALCULATION = this.attribs[attrib](this.self,this.cellID,this.isHeader,this);
-                    this.self.setAttribute(attrib,_ATTRIB_CALCULATION);
+                    _ATTRIB_CALCULATION!==null && this.self.setAttribute(attrib,_ATTRIB_CALCULATION);
                 }catch (e) {
                     console.error(`InfiniteTable Attrib Calculation function error: `,e)
                 }

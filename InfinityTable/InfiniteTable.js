@@ -6,10 +6,11 @@ import ColumnController from "./ColumnController/index.js";
 import ColumnManager from "./controller/ColumnManager/index.js";
 import EventManager from "./controller/EventManager/index.js";
 import MutationListener from "./controller/ColumnManager/MutationListener";
+import TableQuery from "./TableQuery";
 
 export default class InfiniteTable{
     constructor(tableConf={}){
-        const {table_id,root,row,column,columnConf}=tableConf;
+        const {table_id,root,row,column,columnConf,queryData}=tableConf;
         this.initialConf = tableConf;
         if(!table_id)throw new Error("No Table ID Provided");
         this.controller = new Controller(table_id).setColumnConfiguration(columnConf);
@@ -23,6 +24,14 @@ export default class InfiniteTable{
         if(!this.Container)throw new Error("Could not find Container");
         this.InifinityTableElement = null;
         this.columnManager = new ColumnManager(table_id);
+        this.tableQuery = null;
+        this.tableQueryData = null;
+        if(queryData){
+            this.tableQueryData = queryData;
+            this.tableQuery = new TableQuery(this.columnManager,this.selfController);
+            this.tableQuery.setDataSet(this.tableQueryData);
+
+        }
         //handle Events:
         this.selfController.EventManager.subscribe(EventManager.EVENTS.NewColumnInTable,event=>{
             const {position,afterIndex,addedColumn,addedColumnID} = event.detail;
@@ -77,7 +86,6 @@ export default class InfiniteTable{
         const ids = helper.default.generateID(this.Column);
         this.InifinityTableElement = document.createElement('div');
         this.InifinityTableElement.classList.add('Infinity_Table');
-        let dataset = this.controller?.columnConfiguration?.cell?.rowData;
         const titles = this.selfController.getColumnSetting('titles');
         if(!Array.isArray(titles)||titles.length<1)throw new Error("InfiniteTable Render Error.Titles must be an array");
         let titleT = 0;//on render phase title tracker
@@ -91,12 +99,13 @@ export default class InfiniteTable{
                 })
             }
             this.columnManager.addColumn(column);
-            this.InifinityTableElement.appendChild(column.getColumn());
+            requestAnimationFrame(_=>{
+                this.InifinityTableElement.appendChild(column.getColumn());
+            })
         }
-        dataset && this.columnManager.setInitialDataToRows(dataset)
         this.InifinityTableElement.id=this.TableID;
         this.Container.appendChild(this.InifinityTableElement);
-
+        this.selfController.EventManager.raise(EventManager.EVENTS.InitiateDataRendering);
         this.selfController.EventManager.raise(EventManager.EVENTS.RenderingComplete)
         return this;
     }
@@ -114,6 +123,7 @@ export default class InfiniteTable{
         } else {
             console.error('The value of n is out of bounds.');
         }
+
         this.selfController.EventManager.raise(EventManager.EVENTS.RenderingComplete)
     }
 

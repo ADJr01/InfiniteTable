@@ -24,12 +24,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     // }
 
 
-    const rows = Array.from({ length: populationRecord.EndYear - populationRecord.StartYear + 1 }, (v, i) => populationRecord.StartYear + i);
+    const ARow = Array.from({ length: populationRecord.EndYear - populationRecord.StartYear + 1 }, (v, i) => populationRecord.StartYear + i);
+    const queryData = {
+        A:ARow,
+        B:ARow.map(year=>populationRecord.YEARLY_TOTAL_OF_CONTINENTS[populationRecord.CONTINENT_LIST[0]][year]),
+        C:ARow.map(year=>populationRecord.YEARLY_TOTAL_OF_CONTINENTS[populationRecord.CONTINENT_LIST[1]][year]),
+        D:ARow.map(year=>populationRecord.YEARLY_TOTAL_OF_CONTINENTS[populationRecord.CONTINENT_LIST[2]][year]),
+        E:ARow.map(year=>populationRecord.YEARLY_TOTAL_OF_CONTINENTS[populationRecord.CONTINENT_LIST[3]][year]),
+        F:ARow.map(year=>populationRecord.YEARLY_TOTAL_OF_CONTINENTS[populationRecord.CONTINENT_LIST[4]][year]),
+        G:ARow.map(year=>populationRecord.YEARLY_TOTAL_OF_CONTINENTS[populationRecord.CONTINENT_LIST[5]][year]),
+
+
+    }
+    console.log(queryData)
      const it = new InfiniteTable({
         table_id: 'test_table',
-        row: rows.length,
+        row: ARow.length,
         column: populationRecord.CONTINENT_LIST.length,
         root:'app',
+        queryData:queryData,
         columnConf:{
             cell:{
                 style:{
@@ -77,10 +90,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 extent:(cell,id,isHeader,context)=>{
                         //onStartUp
                 },
-                // rowData:{
-                //     1:["Income","Expense","Loan","Liability"],
-                //     2:[ 3590,6288,9474, 85]
-                // }
 
             },
             useTitle:true,
