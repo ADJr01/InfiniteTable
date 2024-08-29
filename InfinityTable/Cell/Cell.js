@@ -1,5 +1,6 @@
 import * as helper from '../utility/utility.js'
 import CellManager from "./CellManager.js";
+import EventManager from "../controller/EventManager";
 export default class Cell{
     constructor(cellConf) {
         const {cellID,classNames,innerText,cellSettings,isHeader,columnID,settings}= cellConf;
@@ -16,6 +17,18 @@ export default class Cell{
         this.innerText = innerText
         this.attribs=cellSettings.attribs;
         this.self = null;
+        this.Settings.EventManager.subscribe(EventManager.EVENTS.CellRenderComplete,(e)=>{
+            const {id} = e.detail;
+            if(id!==this.cellID)return;
+            if (typeof this.CellExtent === 'function') {
+                try {
+                    this.CellExtent(this.self, this.cellID, this.isHeader, this,new CellManager(this));
+                } catch (e) {
+                    console.error(`InfinityCellExtent Error: `, e);
+                }
+            }
+        })
+
     }
 
     setUserData(userData){
@@ -61,13 +74,6 @@ export default class Cell{
                     header: context.isHeader,
                     context: context
                 });
-                if (typeof this.CellExtent === 'function') {
-                    try {
-                        this.CellExtent(this.self, this.cellID, this.isHeader, this,new CellManager(context));
-                    } catch (e) {
-                        console.error(`InfinityCellExtent Error: `, e);
-                    }
-                }
                 done(true)
             })
         })(this)

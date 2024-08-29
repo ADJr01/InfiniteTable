@@ -2,6 +2,35 @@ import ColumnManager from "../controller/ColumnManager/index.js";
 import Cell from "../Cell/Cell.js";
 import EventManager from "../controller/EventManager/index.js";
 
+
+function cellUpdater(cell,data,_this){
+    const context = _this;
+    return new Promise((resolve,reject)=>{
+        if(!cell instanceof Cell)throw new Error(`Invalid Entity Error`);
+        try{
+            requestAnimationFrame(_=>{
+                if(data instanceof HTMLElement){
+                    cell.innerText=null;
+                    cell.CellElement.appendChild(data);
+                    context.CONFIG.EventManager.raise(EventManager.EVENTS.CellRenderComplete,{detail:{id:cell.cellID,dataType: typeof data,data}});
+                }else if(typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' || typeof data === 'bigint'){
+                    cell.innerText=data;
+                    cell.CellElement.innerText = cell.innerText;
+                    context.CONFIG.EventManager.raise(EventManager.EVENTS.CellRenderComplete,{detail:{id:cell.cellID,dataType: typeof data,data}});
+                }else{
+                    console.error(`Invalid Data Entry Error when trying to set: ${data}`);
+                }
+
+            })
+            resolve(true)
+        }catch (e){
+            console.error(`Failed To Update Data For Cell ${cell.cellID}`);
+            reject(e);
+        }
+
+    })
+}
+
 export default class TableQuery{
 
     constructor(columManager,configuration) {
@@ -14,32 +43,13 @@ export default class TableQuery{
             this.isRendered=true;
             this.applyDataToTable();
         })
+        this.CONFIG.EventManager.subscribe(EventManager.EVENTS.queryUpdateRow,event=>{
+            const {cell,data} = event.detail;
+            cellUpdater(cell,data,this)
+        })
     }
 
     applyDataToTable(){
-        function cellUpdater(cell,data){
-            return new Promise((resolve,reject)=>{
-                if(!cell instanceof Cell)throw new Error(`Invalid Entity Error`);
-              try{
-                  requestAnimationFrame(_=>{
-                      if(data instanceof HTMLElement){
-                          cell.innerText=null;
-                          cell.CellElement.appendChild(data);
-                      }else if(typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' || typeof data === 'bigint'){
-                          cell.innerText=data;
-                          cell.CellElement.innerText = cell.innerText;
-                      }else{
-                          console.error(`Invalid Data Entry Error when trying to set: ${data}`);
-                      }
-                  })
-                  resolve(true)
-              }catch (e){
-                  console.error(`Failed To Update Data For Cell ${cell.cellID}`);
-                  reject(e);
-              }
-
-            })
-        }
         if(!this.isRendered)return
         const dataSetKeys = Object.keys(this.dataSet).sort();
         let column_index = 0;
@@ -51,7 +61,7 @@ export default class TableQuery{
             for (let i = 1; i < ColumnCells.length; i++) {
                 const currentCell = ColumnCells[i];
                 if(i-1>=dataArrayForColumn.length || !currentCell)break
-                cellUpdater(currentCell,dataArrayForColumn[i-1]);
+                cellUpdater(currentCell,dataArrayForColumn[i-1],this);
             }
         }
 

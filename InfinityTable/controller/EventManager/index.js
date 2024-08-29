@@ -8,6 +8,8 @@ const EventList = {
     'NewRowInTable':'onNewRow',
     'RemovedColumnInTable':'onRemoveColumn',
     'RemovedRowInTable':'onRemovedRow',
+    'queryUpdateRow':'onQueryUpdateRow',
+    'CellRenderComplete':'onCellRenderComplete',
     'InitiateDataRendering':'onDataRenderingInit',
     'RenderingComplete':'onRenderingComplete',
 }

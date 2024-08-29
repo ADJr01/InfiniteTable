@@ -21,7 +21,6 @@ export default class ColumnManager{
             this.config.EventManager.raise(EventManager.EVENTS.RenderingComplete)
         });
 
-
         this.config.EventManager.subscribe(EventManager.EVENTS.addLayerColumn,e=>this.addLayerColumns(e.detail))
         this.config.EventManager.subscribe(EventManager.EVENTS.deleteColumn,(e)=>{
            let {targetColumnID,mode,count,skipSelf,beforeRemove} = e.detail;
@@ -153,7 +152,6 @@ export default class ColumnManager{
         const newCell = new Cell({
             cellID: newCellID,
             classNames:targetCell.classNames,
-            innerText: textDataForCell ,
             cellSettings: this.config.getColumnSetting('cell:conf'),
             isHeader:false,
             columnID:targetCell.columnID,
@@ -170,6 +168,8 @@ export default class ColumnManager{
         cellList[i].self.id = cellList[i].cellID;
       }
       //end updating current cell id
+      //query table invocation
+      this.config.EventManager.raise(EventManager.EVENTS.queryUpdateRow,{detail: {cell: newCell,data:textDataForCell}})
 
     }
 
