@@ -140,7 +140,8 @@ class PopulationRecord{
 
     setYearlyTotal(continentName,year,total){
          if(!this.YEARLY_TOTAL_OF_CONTINENTS[continentName])this.YEARLY_TOTAL_OF_CONTINENTS[continentName]={}
-        this.YEARLY_TOTAL_OF_CONTINENTS[continentName][year]=total;
+         if(!this.YEARLY_TOTAL_OF_CONTINENTS[continentName][year])this.YEARLY_TOTAL_OF_CONTINENTS[continentName][year]=0;
+        this.YEARLY_TOTAL_OF_CONTINENTS[continentName][year]+=total;
     }
 
     get CONTINENTS(){
